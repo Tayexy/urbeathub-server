@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Visitor Tracker</title>
+</head>
+<body>
+  <h1>Welcome to My Site</h1>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const sendVisitorInfo = async () => {
+        try {
+          const locationRes = await fetch("https://ipapi.co/json/");
+          const locationData = await locationRes.json();
+          const { city, country_name: country, ip } = locationData;
+
+          await fetch("http://localhost:3001/notify-telegram", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              browser: navigator.userAgent,
+              ip,
+              city,
+              country
+            })
+          });
+
+          console.log("✅ Visitor notification sent!");
+          alert("✅ Visitor info sent!");
+        } catch (error) {
+          console.error("❌ Error sending visitor info:", error.message);
+          alert("❌ Failed to send visitor info.");
+        }
+      };
+
+      sendVisitorInfo();
+    });
+  </script>
+</body>
+</html>
