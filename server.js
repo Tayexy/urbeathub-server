@@ -8,19 +8,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Load bot token and single chat ID
+// Load environment variables
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 
-if (!BOT_TOKEN) {
-  throw new Error("❌ BOT_TOKEN is missing in your .env file");
+if (!BOT_TOKEN || !CHAT_ID) {
+  console.error("❌ BOT_TOKEN or CHAT_ID is missing in environment variables.");
+  process.exit(1); // Exit without crashing stack trace
 }
 
-if (!CHAT_ID) {
-  throw new Error("❌ CHAT_ID is missing in your .env file");
-}
-
-console.log("✅ BOT_TOKEN and CHAT_ID loaded");
+console.log("✅ BOT_TOKEN and CHAT_ID loaded successfully");
 
 app.post("/notify-telegram", async (req, res) => {
   const { browser, ip, city, country } = req.body;
@@ -50,7 +47,7 @@ app.post("/notify-telegram", async (req, res) => {
   }
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
