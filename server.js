@@ -1,4 +1,5 @@
-require("dotenv").config(); // ✅ Load environment variables
+require("dotenv").config(); // Load environment variables
+
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
@@ -7,9 +8,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Use environment variables for bot token and chat ID
+// Load bot token and single chat ID
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const CHAT_IDS = process.env.CHAT_IDS?.split(","); // Convert comma-separated string to an array
+const CHAT_ID = process.env.CHAT_ID;
+
+if (!BOT_TOKEN) {
+  throw new Error("❌ BOT_TOKEN is missing in your .env file");
+}
+
+if (!CHAT_ID) {
+  throw new Error("❌ CHAT_ID is missing in your .env file");
+}
+
+console.log("✅ BOT_TOKEN and CHAT_ID loaded");
 
 app.post("/notify-telegram", async (req, res) => {
   const { browser, ip, city, country } = req.body;
@@ -25,27 +36,18 @@ app.post("/notify-telegram", async (req, res) => {
 🖥️ Browser: ${browser}
 🌐 IP: ${ip}`;
 
-  let errors = [];
-
-  for (const chatId of CHAT_IDS) {
-    try {
-      const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-      await axios.post(url, {
-        chat_id: chatId,
-        text: message,
-      });
-      console.log(`✅ Notification sent to ${chatId}`);
-    } catch (error) {
-      console.error(`❌ Failed to send to ${chatId}:`, error.response?.data || error.message);
-      errors.push(chatId);
-    }
+  try {
+    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+    await axios.post(url, {
+      chat_id: CHAT_ID,
+      text: message,
+    });
+    console.log(`✅ Notification sent to ${CHAT_ID}`);
+    return res.status(200).send("✅ Notification sent");
+  } catch (error) {
+    console.error("❌ Failed to send notification:", error.response?.data || error.message);
+    return res.status(500).json({ error: "Failed to send notification" });
   }
-
-  if (errors.length > 0) {
-    return res.status(207).json({ error: `Failed to send to: ${errors.join(", ")}` });
-  }
-
-  return res.status(200).send("✅ All notifications sent");
 });
 
 const PORT = 3001;
