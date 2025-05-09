@@ -1,14 +1,15 @@
+require("dotenv").config(); // ✅ Load environment variables
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
-require("dotenv").config(); // ✅ Load environment variables
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Use environment variables for bot token and chat ID
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const CHAT_IDS = process.env.CHAT_IDS?.split(","); // Convert comma-separated string to array
+const CHAT_IDS = process.env.CHAT_IDS?.split(","); // Convert comma-separated string to an array
 
 app.post("/notify-telegram", async (req, res) => {
   const { browser, ip, city, country } = req.body;
