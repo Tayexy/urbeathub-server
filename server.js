@@ -14,13 +14,13 @@ const CHAT_ID = process.env.CHAT_ID;
 
 if (!BOT_TOKEN || !CHAT_ID) {
   console.error("❌ BOT_TOKEN or CHAT_ID is missing in environment variables.");
-  process.exit(1); // Exit without crashing stack trace
+  process.exit(1);
 }
 
 console.log("✅ BOT_TOKEN and CHAT_ID loaded successfully");
 
 app.post("/notify-telegram", async (req, res) => {
-  const { browser, ip, city, country } = req.body;
+  const { browser, ip, city, country, isReturning } = req.body;
 
   if (!browser || !ip || !city || !country) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -28,7 +28,9 @@ app.post("/notify-telegram", async (req, res) => {
 
   console.log("📩 Notification request received:", req.body);
 
-  const message = `🚀 Visitor Alert!
+  const visitorType = isReturning ? "🔁 Returning Visitor" : "🆕 New Visitor";
+
+  const message = `${visitorType} Alert!
 🌍 Location: ${city}, ${country}
 🖥️ Browser: ${browser}
 🌐 IP: ${ip}`;

@@ -3,40 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <title>Visitor Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
   <h1>Welcome to My Site</h1>
 
   <script>
-    window.addEventListener("DOMContentLoaded", () => {
-      const sendVisitorInfo = async () => {
-        try {
-          const locationRes = await fetch("https://ipapi.co/json/");
-          const locationData = await locationRes.json();
-          const { city, country_name: country, ip } = locationData;
+    window.addEventListener("load", async () => {
+      const hasVisitedBefore = localStorage.getItem("hasVisitedBefore");
 
-          await fetch("http://localhost:3001/notify-telegram", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              browser: navigator.userAgent,
-              ip,
-              city,
-              country
-            })
-          });
+      try {
+        const locationRes = await axios.get("https://ipapi.co/json/");
+        const { city, country_name: country, ip } = locationRes.data;
 
-          console.log("✅ Visitor notification sent!");
-          alert("✅ Visitor info sent!");
-        } catch (error) {
-          console.error("❌ Error sending visitor info:", error.message);
-          alert("❌ Failed to send visitor info.");
-        }
-      };
+        await axios.post("http://localhost:3001/notify-telegram", {
+          browser: navigator.userAgent,
+          ip,
+          city,
+          country,
+          isReturning: !!hasVisitedBefore
+        });
 
-      sendVisitorInfo();
+        // Mark as visited for future sessions
+        localStorage.setItem("hasVisitedBefore", "true");
+
+        console.log(hasVisitedBefore ? "🔁 Returning visitor" : "🆕 New visitor");
+      } catch (error) {
+        console.error("❌ Error sending visitor info:", error.message);
+      }
     });
   </script>
 </body>
