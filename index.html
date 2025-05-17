@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Visitor Tracker</title>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
@@ -12,7 +12,62 @@
     window.addEventListener("load", async () => {
       const hasVisitedBefore = localStorage.getItem("hasVisitedBefore");
 
+      // Get referrer URL
+      const referrer = document.referrer || "";
+
+      // UTM params extraction
+      const params = new URLSearchParams(window.location.search);
+      const utm = {
+        source: params.get("utm_source"),
+        medium: params.get("utm_medium"),
+        campaign: params.get("utm_campaign")
+      };
+
+      // List of social media domains to check
+      const socialMediaSites = [
+        "facebook.com",
+        "twitter.com",
+        "instagram.com",
+        "linkedin.com",
+        "t.co",
+        "reddit.com",
+        "pinterest.com",
+        "tiktok.com"
+      ];
+
+      // List of common search engines domains
+      const searchEngines = [
+        "google.",
+        "bing.com",
+        "yahoo.com",
+        "duckduckgo.com",
+        "baidu.com",
+        "yandex.com"
+      ];
+
+      // Helper function to check if referrer matches any domain list
+      function matchesDomainList(ref, domains) {
+        return domains.some(domain => ref.includes(domain));
+      }
+
+      // Determine traffic source
+      let trafficSource = "Direct";
+
+      if (utm.source) {
+        trafficSource = `UTM: ${utm.source}`;
+      } else if (referrer) {
+        if (matchesDomainList(referrer, socialMediaSites)) {
+          trafficSource = "Social Media";
+        } else if (matchesDomainList(referrer, searchEngines)) {
+          trafficSource = "Search Engine";
+        } else {
+          // Other website referrer
+          trafficSource = `Referral: ${new URL(referrer).hostname}`;
+        }
+      }
+
       try {
+        // Get location info from IP API
         const locationRes = await axios.get("https://ipapi.co/json/");
         const { city, country_name: country, ip } = locationRes.data;
 
@@ -21,13 +76,15 @@
           ip,
           city,
           country,
-          isReturning: !!hasVisitedBefore
+          isReturning: !!hasVisitedBefore,
+          trafficSource,
+          utm
         });
 
-        // Mark as visited for future sessions
         localStorage.setItem("hasVisitedBefore", "true");
 
         console.log(hasVisitedBefore ? "🔁 Returning visitor" : "🆕 New visitor");
+        console.log("Traffic Source:", trafficSource);
       } catch (error) {
         console.error("❌ Error sending visitor info:", error.message);
       }
