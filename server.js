@@ -31,7 +31,7 @@ app.post("/notify-telegram", async (req, res) => {
 
   try {
     let message = "";
-    let sessionType = "📑 Log In Info";
+    let sessionType = "📑 LogIn Info";
 
     if (event && details?.activities) {
       sessionType = "📢 User Session Summary";
