@@ -2,22 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Visitor Tracker - Home</title>
+  <title>About Page</title>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
-  <h1>Welcome to My Site</h1>
-  <p><a href="about.html">Go to About Page</a></p>
+  <h1>About This Site</h1>
+  <p><a href="index.html">Back to Home</a></p>
 
   <script>
+    // Reuse the exact same script from index.html
     const visitStartTime = Date.now();
 
     window.addEventListener("beforeunload", async () => {
-      const timeSpent = Math.round((Date.now() - visitStartTime) / 1000); // seconds
-
+      const timeSpent = Math.round((Date.now() - visitStartTime) / 1000);
       const hasVisitedBefore = localStorage.getItem("hasVisitedBefore");
       const referrer = document.referrer || "";
-
       const params = new URLSearchParams(window.location.search);
       const utm = {
         source: params.get("utm_source"),
