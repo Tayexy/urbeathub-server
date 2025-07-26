@@ -11,6 +11,8 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
 
 app.post("/notify-telegram", async (req, res) => {
+  console.log("📦 Full body received:", req.body); // ✅ Console log for debugging
+
   const {
     event,
     details,
@@ -107,7 +109,7 @@ app.get("/test", (req, res) => {
   res.send("✅ Server is running");
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`🚀 Server listening on http://localhost:${PORT}`);
 });
